@@ -91,8 +91,10 @@ module Passwordless
       session[key] = passwordless_session.id
 
       if record.is_a?(Passwordless::Session)
+        cookies.encrypted['user.uuid'] = User.find_by(id: record.authenticatable_id).uuid
         passwordless_session
       else
+        cookies.encrypted['user.uuid'] = record.uuid
         passwordless_session.authenticatable
       end
     end
@@ -106,6 +108,8 @@ module Passwordless
       cookies.encrypted.permanent[key] = {value: nil}
       cookies.delete(key)
       # /deprecated
+
+      cookies.delete('user.uuid')
 
       reset_session
       true
